@@ -33,7 +33,10 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   className,
 }) => {
   const getInitial = (name: string) => {
-    return name ? name.trim().charAt(0).toUpperCase() : 'U';
+    if (!name || !name.trim()) return 'U';
+    const parts = name.trim().split(/\s+/);
+    const lastWord = parts[parts.length - 1];
+    return lastWord ? lastWord.charAt(0).toUpperCase() : 'U';
   };
 
   return (

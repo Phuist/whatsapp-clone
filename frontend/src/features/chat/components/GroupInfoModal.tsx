@@ -35,15 +35,15 @@ export const GroupInfoModal = ({ isOpen, onClose, conversation }: GroupInfoModal
   if (!isOpen) return null;
 
   const adminId =
-    typeof conversation.groupAdmin === 'object' && conversation.groupAdmin !== null
+    conversation?.groupAdmin && typeof conversation.groupAdmin === 'object'
       ? conversation.groupAdmin._id
-      : conversation.groupAdmin;
+      : conversation?.groupAdmin;
 
-  const isAdmin = user?._id === adminId;
+  const isAdmin = user?._id && adminId ? user._id === adminId : false;
 
   // Filter friends not currently in the group
-  const currentMemberIds = conversation.members.map((m) => m._id);
-  const friendsNotInGroup = friends.filter((f) => !currentMemberIds.includes(f._id));
+  const currentMemberIds = (conversation?.members || []).map((m) => m?._id).filter(Boolean);
+  const friendsNotInGroup = (friends || []).filter((f) => f && !currentMemberIds.includes(f._id));
 
   const handleUpdateGroupName = async () => {
     if (!newGroupName.trim()) {
