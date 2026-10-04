@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useFriendStore } from '../store/friendStore';
+import { useChatStore } from '../store/chatStore';
 import { useCallStore } from '../features/call/callStore';
 import {
   answerCall,
@@ -27,6 +28,7 @@ export const AppLayout = () => {
   const { user, logout } = useAuthStore();
   const { receivedRequests, setFriends, setReceivedRequests, setSentRequests, updateUserPresence } =
     useFriendStore();
+  const { updateUserPresenceInChat } = useChatStore();
   const { setRinging, setEnded, resetCall } = useCallStore();
 
   const navigate = useNavigate();
@@ -48,10 +50,12 @@ export const AppLayout = () => {
 
     const handleUserOnline = ({ userId }: { userId: string }) => {
       updateUserPresence(userId, true);
+      updateUserPresenceInChat(userId, true);
     };
 
     const handleUserOffline = ({ userId, lastSeenAt }: { userId: string; lastSeenAt: string }) => {
       updateUserPresence(userId, false, lastSeenAt);
+      updateUserPresenceInChat(userId, false, lastSeenAt);
     };
 
     // Lắng nghe các sự kiện Socket Cuộc gọi toàn cục (Global Socket Call Handlers)
@@ -126,7 +130,7 @@ export const AppLayout = () => {
       socket.off('call:signal', handleSignalCall);
       socket.off('call:ended', handleEndedCall);
     };
-  }, [updateUserPresence, setRinging, setEnded, resetCall]);
+  }, [updateUserPresence, updateUserPresenceInChat, setRinging, setEnded, resetCall]);
 
   const loadInitialData = async () => {
     try {

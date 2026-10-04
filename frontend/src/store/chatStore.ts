@@ -39,6 +39,7 @@ interface ChatState {
     updatedMessage: MessageItem
   ) => void;
   setTypingUser: (conversationId: string, userId: string, isTyping: boolean) => void;
+  updateUserPresenceInChat: (userId: string, isOnline: boolean, lastSeenAt?: string) => void;
   setIsLoadingConversations: (loading: boolean) => void;
   setIsLoadingMessages: (loading: boolean) => void;
 }
@@ -235,6 +236,39 @@ export const useChatStore = create<ChatState>((set) => ({
 
       return {
         typingUsers: { ...state.typingUsers, [conversationId]: updatedTyping },
+      };
+    }),
+
+  updateUserPresenceInChat: (userId, isOnline, lastSeenAt) =>
+    set((state) => {
+      const updateMember = (m: any) => {
+        if (typeof m === 'object' && m !== null && m._id === userId) {
+          return {
+            ...m,
+            isOnline,
+            lastSeenAt: lastSeenAt || (isOnline ? m.lastSeenAt : new Date().toISOString()),
+          };
+        }
+        return m;
+      };
+
+      const newConversations = state.conversations.map((conv) => ({
+        ...conv,
+        members: Array.isArray(conv.members) ? conv.members.map(updateMember) : conv.members,
+      }));
+
+      const newActive = state.activeConversation
+        ? {
+            ...state.activeConversation,
+            members: Array.isArray(state.activeConversation.members)
+              ? state.activeConversation.members.map(updateMember)
+              : state.activeConversation.members,
+          }
+        : state.activeConversation;
+
+      return {
+        conversations: newConversations,
+        activeConversation: newActive,
       };
     }),
 

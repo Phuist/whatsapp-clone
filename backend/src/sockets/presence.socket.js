@@ -46,6 +46,13 @@ export const setupPresenceSocket = (io) => {
 
     socket.on('disconnect', async () => {
       console.log(`🔴 User disconnected socket: ${userId} (${socket.id})`);
+
+      // Kiểm tra xem người dùng còn kết nối socket nào khác không (ví dụ ở tab khác)
+      const userSockets = io.sockets.adapter.rooms.get(`user:${userId}`);
+      if (userSockets && userSockets.size > 0) {
+        return;
+      }
+
       const lastSeenAt = new Date();
 
       try {
