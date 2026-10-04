@@ -92,8 +92,9 @@ export const ChatAppPage = () => {
         res.data.nextCursor,
         res.data.hasMore
       );
-    } catch (err) {
-      toast.error('Lỗi khi tải lịch sử tin nhắn');
+    } catch (err: any) {
+      console.error('Lỗi khi tải tin nhắn:', err);
+      toast.error(err.response?.data?.message || 'Lỗi khi tải lịch sử tin nhắn');
     }
   };
 

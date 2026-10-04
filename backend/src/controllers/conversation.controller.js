@@ -169,10 +169,15 @@ export const getMessages = async (req, res, next) => {
     const { id: conversationId } = req.params;
     const { cursor, limit } = req.query;
 
+    const sanitizedCursor =
+      cursor && cursor !== 'undefined' && cursor !== 'null' && String(cursor).trim() !== ''
+        ? String(cursor)
+        : undefined;
+
     const data = await getConversationMessages({
       conversationId,
       userId: req.userId,
-      cursor: cursor ? String(cursor) : undefined,
+      cursor: sanitizedCursor,
       limit: limit ? Number(limit) : 30,
     });
 

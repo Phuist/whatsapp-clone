@@ -57,8 +57,10 @@ export const MessageList = ({ conversationId }: MessageListProps) => {
   const [activeReactionPickerId, setActiveReactionPickerId] = useState<string | null>(null);
 
   const currentTypingList = typingUsers[conversationId] || [];
-  const friend = activeConversation?.members.find((m) => m._id !== user?._id);
-  const isFriendTyping = !activeConversation?.isGroup && friend ? currentTypingList.includes(friend._id) : false;
+  const friend = activeConversation?.members?.find((m) => m && m._id !== user?._id);
+  const typingMembers = (activeConversation?.members || []).filter(
+    (m) => m && m._id !== user?._id && currentTypingList.includes(m._id)
+  );
 
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -115,7 +117,7 @@ export const MessageList = ({ conversationId }: MessageListProps) => {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [currentMessages.length]);
+  }, [currentMessages.length, typingMembers.length]);
 
   const handleScroll = async () => {
     const container = messagesContainerRef.current;
@@ -535,16 +537,27 @@ export const MessageList = ({ conversationId }: MessageListProps) => {
           })
         )}
 
-        {/* Typing Indicator Bubble */}
-        {isFriendTyping && (
-          <div className="flex gap-2.5 mr-auto max-w-[70%] animate-in fade-in duration-200">
-            <UserAvatar fullName={friend?.fullName} avatar={friend?.avatar} size="sm" />
-            <div className="p-3 rounded-2xl rounded-tl-none bg-card border border-border/80 text-muted-foreground text-xs flex items-center gap-1.5 shadow-xs">
-              <span>{friend?.fullName} đang gõ</span>
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+        {/* Typing Indicator Chat Bubble */}
+        {typingMembers.map((member) => (
+          <div
+            key={member._id}
+            className="flex gap-2.5 mr-auto max-w-[70%] items-end mb-2 animate-in fade-in slide-in-from-bottom-2 duration-200 select-none"
+          >
+            <UserAvatar fullName={member.fullName} avatar={member.avatar} size="sm" />
+            <div className="flex flex-col items-start">
+              {activeConversation?.isGroup && (
+                <span className="text-[11px] text-muted-foreground font-semibold ml-1 mb-1">
+                  {member.fullName}
+                </span>
+              )}
+              <div className="px-4 py-3 rounded-2xl rounded-bl-xs bg-muted/80 dark:bg-card border border-border/80 text-foreground shadow-xs flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-primary animate-typing-dot-1" />
+                <span className="w-2 h-2 rounded-full bg-primary animate-typing-dot-2" />
+                <span className="w-2 h-2 rounded-full bg-primary animate-typing-dot-3" />
+              </div>
             </div>
           </div>
-        )}
+        ))}
 
         <div ref={bottomRef} />
       </div>
