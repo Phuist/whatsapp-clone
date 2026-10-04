@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Paperclip, X, FileText, Loader2 } from 'lucide-react';
+import { Send, Paperclip, X, FileText, Loader2, Smile } from 'lucide-react';
 import { getSocket } from '../../../lib/socket';
 import { sendMessageApi, uploadFileApi } from '../api';
 import { useChatStore } from '../../../store/chatStore';
+import { EmojiPicker } from './EmojiPicker';
 import { toast } from 'sonner';
 
 interface MessageInputProps {
@@ -14,10 +15,15 @@ export const MessageInput = ({ conversationId }: MessageInputProps) => {
   const [sending, setSending] = useState(false);
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const { addMessage } = useChatStore();
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSelectEmoji = (emoji: string) => {
+    setText((prev) => prev + emoji);
+  };
 
   const handleTyping = () => {
     const socket = getSocket();
@@ -215,6 +221,27 @@ export const MessageInput = ({ conversationId }: MessageInputProps) => {
             handleTyping();
           }}
           className="flex-1 h-10 px-4 rounded-xl bg-muted/40 border border-input text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+        />
+
+        {/* Emoji Picker Button */}
+        <button
+          type="button"
+          onClick={() => setIsEmojiPickerOpen((prev) => !prev)}
+          className={`p-2 rounded-full transition-colors emoji-toggle-btn ${
+            isEmojiPickerOpen
+              ? 'text-primary bg-primary/10'
+              : 'text-muted-foreground hover:text-primary hover:bg-muted'
+          }`}
+          title="Chọn biểu cảm Emoji"
+        >
+          <Smile className="w-5 h-5" />
+        </button>
+
+        {/* Emoji Picker Popover */}
+        <EmojiPicker
+          isOpen={isEmojiPickerOpen}
+          onClose={() => setIsEmojiPickerOpen(false)}
+          onSelectEmoji={handleSelectEmoji}
         />
 
         <button

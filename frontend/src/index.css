@@ -147,3 +147,29 @@
     @apply font-sans;
   }
 }
+
+@keyframes typingDotBounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.animate-typing-dot-1 {
+  animation: typingDotBounce 1.4s infinite ease-in-out;
+  animation-delay: 0s;
+}
+
+.animate-typing-dot-2 {
+  animation: typingDotBounce 1.4s infinite ease-in-out;
+  animation-delay: 0.2s;
+}
+
+.animate-typing-dot-3 {
+  animation: typingDotBounce 1.4s infinite ease-in-out;
+  animation-delay: 0.4s;
+}

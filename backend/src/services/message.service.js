@@ -83,9 +83,11 @@ export const getConversationMessages = async ({
     throw new ApiError(404, 'Không tìm thấy cuộc trò chuyện');
   }
 
-  const isMember = conversation.members.some(
-    (memberId) => memberId.toString() === userId
-  );
+  const userIdStr = userId?._id ? userId._id.toString() : userId?.toString();
+  const isMember = conversation.members.some((member) => {
+    const memberIdStr = member?._id ? member._id.toString() : member?.toString();
+    return memberIdStr === userIdStr;
+  });
   if (!isMember) {
     throw new ApiError(403, 'Bạn không có quyền xem tin nhắn cuộc trò chuyện này');
   }
